@@ -1,4 +1,4 @@
-rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrimport numpy as np
+import numpy as np
 import random
 
 class Network(object):
@@ -14,7 +14,7 @@ class Network(object):
         # for x,y in zip(sizes[:-1],sizes[1:]):
         #     self.weights.append(np.random.randn(x,y))
         self.acc_list=[] #精度列表
-        self.locc_list=[]
+        self.loss_list=[]
     def feedforward(self, x):  # x是3行1列的输入
         for w, b in zip(self.weights, self.biases):
             x = sigmoid(np.dot(w, x) + b)
@@ -76,7 +76,9 @@ class Network(object):
             if test_data:
                 acc=self.evaluate(test_data) #计算测试集精度
                 self.acc_list.append(acc/n_test) #将精度追加至列表
-                print(f"Epoch{j}:{acc}/{n_test} ,test_loss:{self.mean_square_loss(test_data)}") #在测试集的准确率
+                test_loss=self.mean_square_loss(test_data)
+                self.loss_list.append(test_loss)
+                print(f"Epoch{j}:{acc}/{n_test} ,test_loss:{test_loss}") #在测试集的准确率
             print(f"Epoch{j} complete")
     def evaluate(self,test_data): #计算正确识别的总量
         test_results=[]
@@ -123,10 +125,15 @@ if __name__ == '__main__':
     test_data=list(test_data)
     net=Network([784,30,10])
     net.SGD(training_data,100,5,3,test_data)
+
     # 画测试集的精度图
     import matplotlib.pyplot as plt
 
-    plt.plot(range(5), net.acc_list, 'o-')
+    # plt.plot(range(5), net.acc_list, 'o-')
+
+    plt.plot(range(5), net.loss_list, 'o-')
     plt.show()
 
 
+
+# %%
