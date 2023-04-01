@@ -123,15 +123,15 @@ if __name__ == '__main__':
     training_data,validation_data,test_data=mnist_loader.load_data_wrapper()
     training_data=list(training_data)
     test_data=list(test_data)
-    net=Network([784,50,10])
-    net.SGD(training_data,100,3,0.01,test_data)
+    net=Network([784,60,10])
+    net.SGD(training_data,100,50,0.01,test_data)
 
     # 画测试集的精度图
     import matplotlib.pyplot as plt
 
-    plt.plot(range(5), net.acc_list, 'o-')
+    # plt.plot(range(5), net.acc_list, 'o-')
 
-    plt.plot(range(5), net.loss_list, 'o-')
+    # plt.plot(range(5), net.loss_list, 'o-')
     plt.show()
 
 
