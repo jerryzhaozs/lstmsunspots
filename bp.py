@@ -2,8 +2,9 @@ import numpy as np
 import random
 
 class Network(object):
-    def __init__(self, sizes):  # sizes  [3,2,2]
+    def __init__(self, sizes,ty):  # sizes  [3,2,2]
         # 网络层数
+        self.ty=ty
         self.num_layers = len(sizes)
         # 每层神经元个数
         self.sizes = sizes
@@ -17,7 +18,7 @@ class Network(object):
         self.loss_list=[]
     def feedforward(self, x):  # x是3行1列的输入
         for w, b in zip(self.weights, self.biases):
-            x = sigmoid(np.dot(w, x) + b)
+            x = sel_function(np.dot(w, x) + b,self.ty,0)
         return x
 
     def cost_derivative(self, output_activation, y):
@@ -34,18 +35,18 @@ class Network(object):
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w, activation) + b
             zs.append(z)
-            activation = sigmoid(z)
+            activation = sel_function(z,self.ty,0)
             activations.append(activation)
         # 反向更新
         # 从最后一层开始，反着更新每一层的w,b
         # 最后一层
-        delta = self.cost_derivative(activations[-1], y) * sigmoid_prime(zs[-1])
+        delta = self.cost_derivative(activations[-1], y) * sel_function(zs[-1],self.ty,1)
         # 最后一层权重和偏执的导数
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
         # 从倒数第二层到输入层
         for l in range(2, self.num_layers):
-            sp = sigmoid_prime(zs[-l])
+            sp = sel_function(zs[-l],self.ty,1)
             # 计算当前层的误差
             delta = np.dot(self.weights[-l + 1].transpose(), delta) * sp
             # 保存当前层的偏置和权重的导数
@@ -76,7 +77,7 @@ class Network(object):
             if test_data:
                 acc=self.evaluate(test_data) #计算测试集精度
                 self.acc_list.append(acc/n_test) #将精度追加至列表
-                test_loss=self.mean_square_loss(test_data)
+                test_loss=self.loss01(test_data)
                 self.loss_list.append(test_loss)
                 print(f"Epoch{j}:{acc}/{n_test} ,test_loss:{test_loss}") #在测试集的准确率
             print(f"Epoch{j} complete")
@@ -109,6 +110,17 @@ class Network(object):
                 y=t
             loss+=np.sum(np.square(y_hat-y))*0.5
         return loss/len(data)
+    def loss01(self,data):
+        #均方查损失函数计算误差
+        loss=0
+        for x,y in data:
+            y_hat=self.feedforward(x)
+            if y.ndim==0: #如果是测试集
+                t=np.zeros([10,1])
+                t[y]=1
+                y=t
+            loss+=np.sum(np.abs(y_hat-y))
+        return loss
 
 # sigmoid函数
 def sigmoid(z):
@@ -118,22 +130,50 @@ def sigmoid(z):
 def sigmoid_prime(z):
     return sigmoid(z) * (1 - sigmoid(z))
 
+def sel_function(z,type,des):
+    if type == 'sigmoid':
+        if des == 0:
+            return sigmoid(z)
+        else:
+            return sigmoid_prime(z)
+    elif type == 'tanh':
+        if des == 0:
+            return tanh(z)
+        else:
+            return tanh_prime(z)
+
+def tanh(x):
+    return 2 / (1 + np.exp(-2*x)) - 1
+
+def tanh_prime(x):
+    return 1 - np.power(tanh(x), 2)
+
 if __name__ == '__main__':
     import mnist_loader
+    import matplotlib.pyplot as plt
     training_data,validation_data,test_data=mnist_loader.load_data_wrapper()
     training_data=list(training_data)
     test_data=list(test_data)
-    net=Network([784,60,10])
-    net.SGD(training_data,100,40,0.01,test_data)
+    #%%
+    net=Network([784,50,10],'tanh')
+    net.SGD(training_data,100,10,1,test_data)
 
     # 画测试集的精度图
-    import matplotlib.pyplot as plt
-
+    print("acc:",net.acc_list[-1])
     # plt.plot(range(5), net.acc_list, 'o-')
 
     # plt.plot(range(5), net.loss_list, 'o-')
+    # plt.show()
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 2))
+    ax1.set_title('acc_list')
+    ax1.set_xlabel('epoch')
+    ax1.set_ylabel('accuracy')
+    ax1.plot(net.acc_list,'o-')
+    
+    
+    ax2.set_title('loss_list')
+    ax2.set_xlabel('epoch')
+    ax2.set_ylabel('loss')
+    ax2.plot(net.loss_list,'o-')
     plt.show()
-
-
-
-# %%
