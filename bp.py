@@ -124,7 +124,7 @@ if __name__ == '__main__':
     training_data=list(training_data)
     test_data=list(test_data)
     net=Network([784,60,10])
-    net.SGD(training_data,100,30,0.01,test_data)
+    net.SGD(training_data,100,40,0.01,test_data)
 
     # 画测试集的精度图
     import matplotlib.pyplot as plt
