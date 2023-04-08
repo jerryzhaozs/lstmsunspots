@@ -2,21 +2,15 @@ import numpy as np
 import random
 
 class Network(object):
-    def __init__(self, sizes,ty):  # sizes  [3,2,2]
-        # 网络层数
+    def __init__(self, sizes,ty):
         self.ty=ty
         self.num_layers = len(sizes)
-        # 每层神经元个数
         self.sizes = sizes
-        # 初始化每层偏置和权重
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x)/np.sqrt(x) for x, y in zip(sizes[:-1], sizes[1:])]
-        # self.weights=[]
-        # for x,y in zip(sizes[:-1],sizes[1:]):
-        #     self.weights.append(np.random.randn(x,y))
-        self.acc_list=[] #精度列表
+        self.acc_list=[]
         self.loss_list=[]
-    def feedforward(self, x):  # x是3行1列的输入
+    def feedforward(self, x):
         for w, b in zip(self.weights, self.biases):
             x = sel_function(np.dot(w, x) + b,self.ty,0)
         return x
@@ -79,7 +73,7 @@ class Network(object):
                 self.acc_list.append(acc/n_test) #将精度追加至列表
                 test_loss=self.loss01(test_data)
                 self.loss_list.append(test_loss)
-                print(f"Epoch{j}:{acc}/{n_test} ,test_loss:{test_loss}") #在测试集的准确率
+                print(f"Epoch{j}:{acc}/{n_test},accuracy:{acc/n_test} ,test_loss:{test_loss}") # 每轮准确率与损失
             print(f"Epoch{j} complete")
     def evaluate(self,test_data): #计算正确识别的总量
         test_results=[]
@@ -111,7 +105,7 @@ class Network(object):
             loss+=np.sum(np.square(y_hat-y))*0.5
         return loss/len(data)
     def loss01(self,data):
-        #均方查损失函数计算误差
+        #01损失函数计算误差
         loss=0
         for x,y in data:
             y_hat=self.feedforward(x)
@@ -129,7 +123,7 @@ def sigmoid(z):
 # sigmoid函数偏导
 def sigmoid_prime(z):
     return sigmoid(z) * (1 - sigmoid(z))
-
+# 激活函数选择函数
 def sel_function(z,type,des):
     if type == 'sigmoid':
         if des == 0:
@@ -141,10 +135,10 @@ def sel_function(z,type,des):
             return tanh(z)
         else:
             return tanh_prime(z)
-
+# tanh函数
 def tanh(x):
     return 2 / (1 + np.exp(-2*x)) - 1
-
+# tanh函数反向传播
 def tanh_prime(x):
     return 1 - np.power(tanh(x), 2)
 
@@ -159,18 +153,12 @@ if __name__ == '__main__':
     net.SGD(training_data,100,10,1,test_data)
 
     # 画测试集的精度图
-    print("acc:",net.acc_list[-1])
-    # plt.plot(range(5), net.acc_list, 'o-')
-
-    # plt.plot(range(5), net.loss_list, 'o-')
-    # plt.show()
-
+    print("final_accuracy:",net.acc_list[-1])
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 2))
     ax1.set_title('acc_list')
     ax1.set_xlabel('epoch')
     ax1.set_ylabel('accuracy')
     ax1.plot(net.acc_list,'o-')
-    
     
     ax2.set_title('loss_list')
     ax2.set_xlabel('epoch')
