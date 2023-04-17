@@ -67,8 +67,8 @@ def get_features(image, model, layers=None):
     """ 
         使图片从模型各模块通过，并保存需要模块的输出
     """
-    
-    ## Need the layers for the content and style representations of an image
+    # structure = torch.nn.Sequential(*list(vgg.children())[:])
+    # print(structure)
     if layers is None:
         layers = {'0': 'conv1_1',
                   '5': 'conv2_1', 
@@ -80,9 +80,12 @@ def get_features(image, model, layers=None):
     x = image
     # 使图片x通过每个模块，如果name在layers中则将feature保存到features中
     for name, layer in model._modules.items():
+        print(name)
         x = layer(x)
         if name in layers:
             features[layers[name]] = x # key为层数名字，value为tensor张量
+        if name=='28': # 获取结束跳出循环
+            break
     return features
 
 def gram_matrix(tensor):
@@ -122,7 +125,7 @@ style_weight = 1e12  # style权重比content大很多是因为style图片需要�
 
 # 设置更新器
 optimizer = optim.Adam([target], lr=0.2)
-steps = 30  # 迭代更新目标图片的次数
+steps = 1  # 迭代更新目标图片的次数
 
 for ii in range(1, steps+1):
     
