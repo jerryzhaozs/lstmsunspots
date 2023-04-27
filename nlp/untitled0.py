@@ -21,14 +21,9 @@ def stopwordslist():
     return stopwords
 
 def seg_depart(sentence,counts):
-    # 对文档中的每一行进行中文分词
-    print("正在分词")
     sentence_depart = jieba.cut(sentence.strip())
-    # 创建一个停用词列表
     stopwords = stopwordslist()
-    # 输出结果为outstr
     outstr = ''
-    # 去停用词
     for word in sentence_depart:
         if word not in stopwords:
             if len(word)>1:
@@ -45,13 +40,33 @@ inputs = open(filename, 'r', encoding='UTF-8')
 outputs = open(outfilename, 'w', encoding='UTF-8')
 counts={}
 # 将输出结果写入out.txt中
+lines=[]
 for line in inputs:
     line_seg = seg_depart(line,counts)
     outputs.write(line_seg + '\n')
-    print("-------------------正在分词和去停用词-----------")
 #%%
 ls1 = sorted(counts.items(),key=lambda x:x[1],reverse=True)
 for i in ls1[:20]:
     print(f'{i[0]}->{i[1]}')
 outputs.close()
 inputs.close()
+
+#%%
+
+# from gensim.models import Word2Vec
+# import re
+
+# inputs = open('sg-out.txt', 'r', encoding='UTF-8')
+# lines=[]
+# print(inputs)
+
+
+
+
+
+# model=Word2Vec(inputs,vector_size=20,window=2,min_count=3,epochs=7,negative=10,sg=1)
+# print(model.wv.get_vector('刘备'))
+# result=model.wv.most_similar('刘备',topn=10)
+# for i in result:
+#     print(i)
+# inputs.close()
