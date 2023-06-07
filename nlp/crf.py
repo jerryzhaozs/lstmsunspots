@@ -20,8 +20,8 @@ def preprocess(file_path):
             data.append(features)
     return data
 
-train_data = preprocess('train.txt')
-test_data = preprocess('test.txt')
+train_data = preprocess('C:\\Users\\Administrator\\Desktop\\lstm\\nlp\\train.txt')
+test_data = preprocess('C:\\Users\\Administrator\\Desktop\\lstm\\nlp\\test.txt')
 
 # 2. 训练模型
 def train(train_data, model_path):
@@ -75,6 +75,8 @@ def extract(result):
 extract_results = extract(pred_results)
 
 # 5. 评估结果
-with open('test_result.txt', 'w', encoding='utf-8') as f:
+with open('C:\\Users\\Administrator\\Desktop\\lstm\\nlp\\test_result.txt', 'w', encoding='utf-8') as f:
     for line in extract_results:
         f.write('  '.join(line) + '\n')
+        for word in line:
+            print(word,end=' ')
